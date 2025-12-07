@@ -92,30 +92,30 @@ public class BookingService implements IBookingService {
      * Simplified and corrected room availability check
      */
     private boolean isRoomAvailable(BookedRoom newBooking, List<BookedRoom> existingBookings) {
-        // If no existing bookings, room is available
         if (existingBookings == null || existingBookings.isEmpty()) {
             return true;
         }
 
-        // Check for date overlap
-        for (BookedRoom existingBooking : existingBookings) {
-            if (datesOverlap(newBooking, existingBooking)) {
-                return false; // Room is booked for these dates
-            }
+        // Prevent booking if dates overlap
+        boolean hasOverlap = existingBookings.stream()
+                .anyMatch(existing -> datesOverlap(newBooking, existing));
+
+        if (hasOverlap) {
+            throw new InvalidBookingRequestException(
+                    "Sorry, this room is not available for the selected dates"
+            );
         }
 
-        return true; // No overlap found, room is available
+        return true;
     }
 
-    /**
-     * Check if two booking periods overlap
-     * Two periods overlap if:
-     * - New check-in is before existing check-out AND new check-out is after existing check-in
-     */
     private boolean datesOverlap(BookedRoom newBooking, BookedRoom existingBooking) {
-        return !(newBooking.getCheckOutDate().isBefore(existingBooking.getCheckInDate()) ||
-                newBooking.getCheckInDate().isAfter(existingBooking.getCheckOutDate()));
+        return !(
+                newBooking.getCheckOutDate().isBefore(existingBooking.getCheckInDate()) ||
+                        newBooking.getCheckInDate().isAfter(existingBooking.getCheckOutDate())
+        );
     }
+
 
     /**
      * Alternative simpler implementation using LocalDate ranges

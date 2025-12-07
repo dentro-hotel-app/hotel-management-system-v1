@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -117,4 +118,19 @@ public class BookingController {
                 booking.getNumOfChildren(), booking.getTotalNumOfGuest(),
                 booking.getBookingConfirmationCode(), room);
     }
+
+    @GetMapping("/room/{roomId}/booked-dates")
+    public ResponseEntity<List<Map<String, String>>> getBookedDates(@PathVariable Long roomId) {
+        List<BookedRoom> bookings = bookingService.getAllBookingsByRoomId(roomId);
+
+        List<Map<String, String>> response = bookings.stream().map(b -> {
+            Map<String, String> dateMap = new HashMap<>();
+            dateMap.put("start", b.getCheckInDate().toString());
+            dateMap.put("end", b.getCheckOutDate().toString());
+            return dateMap;
+        }).toList();
+
+        return ResponseEntity.ok(response);
+    }
+
 }

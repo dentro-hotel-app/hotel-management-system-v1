@@ -23,8 +23,6 @@ import java.io.IOException;
 @Component
 public class AuthTokenFilter extends OncePerRequestFilter {
 
-
-
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -37,6 +35,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+
         try {
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtils.validateToken(jwt)) {
@@ -58,11 +57,20 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
+
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
             logger.info("JWT extracted from header");
             return headerAuth.substring(7);
         }
+
         logger.warn("No JWT token found in Authorization header");
         return null;
+    }
+
+    // NEW addition: Skip filtering on login/register endpoints
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/api/auth/");
     }
 }

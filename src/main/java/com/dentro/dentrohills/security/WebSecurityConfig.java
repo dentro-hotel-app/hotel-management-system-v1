@@ -33,24 +33,23 @@ public class WebSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/auth/**").permitAll()  // Allow login & register
                         .requestMatchers(
                                 "/rooms/all-rooms",
                                 "/rooms/room/types",
                                 "/rooms/available-rooms",
                                 "/rooms/room/**"
                         ).permitAll()
-                        // Add booking endpoints to permitAll
                         .requestMatchers(
-                                "/bookings/room/*/booking",       // POST /bookings/room/{id}/booking
-                                "/bookings/confirmation/**",      // GET /bookings/confirmation/{code}
-                                "/bookings/all-bookings"          // GET /bookings/all-bookings (optional)
+                                "/bookings/room/*/booking",
+                                "/bookings/confirmation/**",
+                                "/bookings/all-bookings"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
-                        .authenticationEntryPoint(jwtAuthEntryPoint)  // Handles 401
-                        .accessDeniedHandler(jwtAuthEntryPoint)       // Handles 403 - uses same class
+                        .authenticationEntryPoint(jwtAuthEntryPoint)
+                        .accessDeniedHandler(jwtAuthEntryPoint)
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

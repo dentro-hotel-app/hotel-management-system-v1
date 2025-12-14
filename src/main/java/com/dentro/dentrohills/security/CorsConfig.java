@@ -21,7 +21,8 @@ public class CorsConfig {
 
         config.setAllowedOrigins(List.of(
                 "http://localhost:5173",
-                "https://your-s3-website-url",
+                "http://dentrohills.com",
+                "http://www.dentrohills.com",
                 "http://3.108.236.74",
                 "http://dentro-frontend-s3.s3-website.ap-south-1.amazonaws.com"
         ));

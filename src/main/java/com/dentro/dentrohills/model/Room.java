@@ -22,8 +22,10 @@ public class Room {
     private String roomType;
     private BigDecimal roomPrice;
     private boolean isBooked = false;
-    @Lob
-    private Blob photo;
+    /*@Lob
+    private Blob photo;*/
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomImage> images = new ArrayList<>();
 
     @OneToMany(mappedBy="room", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<BookedRoom> bookings;

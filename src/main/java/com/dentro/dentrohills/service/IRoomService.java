@@ -12,17 +12,17 @@ import java.util.Optional;
 
 public interface IRoomService {
 
-    Room addNewRoom(MultipartFile photo, String roomType, BigDecimal roomPrice) throws SQLException, IOException;
+    Room addNewRoom(MultipartFile[] photo, String roomType, BigDecimal roomPrice) throws IOException;
 
     List<String> getAllRoomTypes();
 
     List<Room> getAllRooms();
 
-    byte[] getRoomPhotoByRoomId(Long roomId) throws SQLException;
+    //byte[] getRoomPhotoByRoomId(Long roomId) throws SQLException;
 
     void deleteRoom(Long roomId);
 
-    Room updateRoom(Long roomId, String roomType, BigDecimal roomPrice, byte[] photoBytes);
+    Room updateRoom(Long roomId, String roomType, BigDecimal roomPrice);
 
     Optional<Room> getRoomById(Long roomId);
 

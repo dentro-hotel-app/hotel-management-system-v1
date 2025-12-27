@@ -46,37 +46,28 @@ public class BookingController {
     }
 
     @PostMapping("/room/{roomId}/booking")
-    @PreAuthorize("permitAll()")
-    public ResponseEntity<?> saveBooking(@PathVariable Long roomId,
-                                         @RequestBody BookedRoom bookingRequest) {
+    public ResponseEntity<?> saveBooking(
+            @PathVariable Long roomId,
+            @RequestBody BookedRoom bookingRequest
+    ) {
         try {
             String confirmationCode = bookingService.saveBooking(roomId, bookingRequest);
 
-            // Return a structured JSON response
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", "Room booked successfully");
             response.put("confirmationCode", confirmationCode);
-            response.put("bookingId", bookingRequest.getBookingId()); // if you have bookingId
 
             return ResponseEntity.ok(response);
 
         } catch (InvalidBookingRequestException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("error", "Booking failed");
-            errorResponse.put("message", e.getMessage());
-
-            return ResponseEntity.badRequest().body(errorResponse);
-        } catch (ResourceNotFoundException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("success", false);
-            errorResponse.put("error", "Room not found");
-            errorResponse.put("message", e.getMessage());
-
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", e.getMessage()
+            ));
         }
     }
+
 
     @GetMapping("/confirmation/{confirmationCode}")
     public ResponseEntity<?> getBookingByConfirmationCode(@PathVariable String confirmationCode){

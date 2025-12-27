@@ -1,6 +1,7 @@
 package com.dentro.dentrohills.service;
 
 import com.dentro.dentrohills.model.Room;
+import com.dentro.dentrohills.response.RoomResponse;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -12,11 +13,11 @@ import java.util.Optional;
 
 public interface IRoomService {
 
-    Room addNewRoom(MultipartFile[] photo, String roomType, BigDecimal roomPrice) throws IOException;
+    Room addNewRoom(MultipartFile[] photo, String roomType, BigDecimal roomPrice, Long hospitalId) throws IOException;
 
     List<String> getAllRoomTypes();
 
-    List<Room> getAllRooms();
+    List<RoomResponse> getAllRooms();
 
     //byte[] getRoomPhotoByRoomId(Long roomId) throws SQLException;
 
@@ -28,4 +29,5 @@ public interface IRoomService {
 
     List<Room> getAvailableRooms(LocalDate checkInDate, LocalDate checkOutDate, String roomType);
 
+    List<RoomResponse> getRoomsByHospital(String hospitalName);
 }

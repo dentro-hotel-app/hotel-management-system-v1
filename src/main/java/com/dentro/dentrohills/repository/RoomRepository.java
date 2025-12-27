@@ -11,6 +11,11 @@ import java.util.List;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
 
+    @Query("SELECT r FROM Room r WHERE LOWER(r.nearestHospitalEntity.name) = LOWER(:hospitalName)")
+    List<Room> findByHospitalName(String hospitalName);
+    List<Room> findByNearestHospitalEntityId(Long hospitalId);
+    //List<Room> findByNearestHospitalIgnoreCase(String nearestHospital);
+
     @Query("SELECT DISTINCT r.roomType FROM Room r")
     List<String> findDistinctRoomTypes();
 

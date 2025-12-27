@@ -5,6 +5,7 @@ import com.dentro.dentrohills.security.jwt.JwtAuthEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -20,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity  // This enables @PreAuthorize annotations
+@EnableMethodSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
 
@@ -29,29 +30,55 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
+
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll()  // Allow login & register
+
+                        // 🔓 CORS
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // 🔓 AUTH (FIXED)
                         .requestMatchers(
-                                "/rooms/all-rooms",
-                                "/rooms/room/types",
-                                "/rooms/available-rooms",
-                                "/rooms/room/**"
+                                "/auth/**",
+                                "/api/auth/**"
                         ).permitAll()
+
+                        // 🔓 HOSPITALS
+                        .requestMatchers("/hospitals/**").permitAll()
+
+                        // 🔓 ROOMS
+                        .requestMatchers("/rooms/**").permitAll()
+
+                        // 🔓 BOOKINGS (GUEST)
                         .requestMatchers(
-                                "/bookings/room/*/booking",
+                                "/bookings/room/**",
                                 "/bookings/confirmation/**",
-                                "/bookings/all-bookings"
+                                "/bookings/room/*/booked-dates"
                         ).permitAll()
+
+                        // 🔒 ADMIN
+                        .requestMatchers(
+                                "/hospitals/*/upload-photo",
+                                "/rooms/add/**",
+                                "/rooms/update/**",
+                                "/rooms/delete/**"
+                        ).hasRole("ADMIN")
+
                         .anyRequest().authenticated()
                 )
+
+
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(jwtAuthEntryPoint)
                         .accessDeniedHandler(jwtAuthEntryPoint)
                 )
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                );
 
         http.addFilterBefore(authTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
@@ -59,7 +86,9 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authenticationConfiguration
+    ) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
